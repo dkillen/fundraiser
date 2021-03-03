@@ -198,4 +198,40 @@ contract("Fundraiser", accounts => {
             });
         });
     });
+
+    describe("receive and fallback functions", () => {
+        describe("receive function", () => {
+            const value = web3.utils.toWei('0.0289');
+
+            it("increases the totalDonations amount", async () => {
+                const currentTotalDonations = await fundraiser.totalDonations();
+                await web3.eth.sendTransaction(
+                    { to: fundraiser.address, from: accounts[9], value }
+                );
+                const newTotalDonations = await fundraiser.totalDonations();
+
+                const diff = newTotalDonations - currentTotalDonations;
+
+                assert.equal(
+                    diff,
+                    value,
+                    "difference should match the donation value"
+                );
+            });
+
+            it("increases donations count", async () => {
+                const currentDonationsCount = await fundraiser.donationsCount();
+                await web3.eth.sendTransaction(
+                    { to: fundraiser.address, from: accounts[9], value }
+                );
+                const newDonationsCount = await fundraiser.donationsCount();
+
+                assert.equal(
+                    1,
+                    newDonationsCount - currentDonationsCount,
+                    "donations should increment by 1"
+                );
+            });
+        });
+    });
 });
