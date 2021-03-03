@@ -28,6 +28,7 @@ contract Fundraiser is Ownable {
 
     // Events
     event DonationReceived(address indexed donor, uint256 value);
+    event Withdraw(uint256 amount);
 
     // Contructor initialises the contract with the fundraising campaign details
     // and transfers ownership of the contract to the custodian. THe custodian is
@@ -84,5 +85,11 @@ contract Fundraiser is Ownable {
         }
 
         return (values, dates);
+    }
+
+    function withdraw() public onlyOwner {
+        uint256 balance = address(this).balance;
+        beneficiary.transfer(balance);
+        emit Withdraw(balance);
     }
 }
