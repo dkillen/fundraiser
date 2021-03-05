@@ -4,6 +4,12 @@ pragma solidity ^0.7.4;
 import "openzeppelin-solidity/contracts/access/Ownable.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
+// Fundraiser contract provides a set of functions representing a campaign
+// of fundraising allowing donors to make donations and retreive information
+// about their donations. The contract also provides methods for the management
+// of the campaign by a custodian (the person/entity managing the campaign on
+// behalf of the beneficiary) and to eventually withdraw the donated funds
+// periodically or when the campaign is at an end.
 contract Fundraiser is Ownable {
     using SafeMath for uint256;
 
@@ -12,15 +18,24 @@ contract Fundraiser is Ownable {
         uint256 value;
         uint256 date;
     }
-
     
-    // Details of the fundraising campaign
+    // Propertis representing the details of the fundraising campaign
+
+    // name: the name of the campaign
     string public name;
+    // url: the url of a website for the campaign
     string public url;
+    // imageUrl: url of an image to represent the campaign
     string public imageUrl;
+    // description: a description of the campaign which might include the reasons for
+    //              the campaign and what the funds will be used for.
     string public description;
+    // beneficiary: the address of the beneficiary of the campaign - the person/entity
+    //              that the funds are being raised for.
     address payable public beneficiary;
+    // totalDonations: the total amount of the donations received by the campaign
     uint256 public totalDonations;
+    // donationsCount: the total number of donations received by the campaign
     uint256 public donationsCount;
 
     // Mapping of donors to donations made. Each donor may have multiple donations.
@@ -31,8 +46,8 @@ contract Fundraiser is Ownable {
     event Withdraw(uint256 amount);
 
     // Contructor initialises the contract with the fundraising campaign details
-    // and transfers ownership of the contract to the custodian. THe custodian is
-    // would normally be the person managing the fundraising campaign for the beneficiary.
+    // and transfers ownership of the contract to the custodian. The custodian would 
+    // normally be the person managing the fundraising campaign for the beneficiary.
     constructor(
         string memory _name,
         string memory _url,
@@ -87,12 +102,16 @@ contract Fundraiser is Ownable {
         return (values, dates);
     }
 
+    // Withdraw the funds donated to the campaign. On withdrawal the
+    // total funds are transferred to the beneficiary's address
     function withdraw() public onlyOwner {
         uint256 balance = address(this).balance;
         beneficiary.transfer(balance);
         emit Withdraw(balance);
     }
 
+    // receive function to accept transfer sent to the contract address
+    // rather than using the donate function
     receive() external payable {
         totalDonations = totalDonations.add(msg.value);
         donationsCount++;
