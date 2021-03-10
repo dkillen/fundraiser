@@ -1,2 +1,4 @@
 /node_modules
 /client/src/contracts
+SimpleStorage.sol
+3_deploy_simpleStorage.js
